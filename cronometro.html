@@ -34,6 +34,7 @@
             display: flex;
             gap: 1rem;
             justify-content: center;
+            margin-bottom: 1rem;
         }
 
         button {
@@ -55,6 +56,19 @@
             text-align: center;
             margin-top: 1rem;
         }
+
+        .time-input {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        input {
+            padding: 0.3rem;
+            width: 50px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -64,6 +78,11 @@
             <button onclick="startTimer()">Iniciar</button>
             <button onclick="stopTimer()">Parar</button>
             <button onclick="resetTimer()">Reset</button>
+        </div>
+        <div class="time-input">
+            <input type="number" id="hoursInput" placeholder="HH" min="0" max="99">
+            <input type="number" id="minutesInput" placeholder="MM" min="0" max="59">
+            <input type="number" id="secondsInput" placeholder="SS" min="0" max="59">
         </div>
         <div class="timer" id="timer">00:00:00</div>
     </div>
@@ -82,11 +101,39 @@
             document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
         }
 
+        function validateTimeInputs() {
+            const hours = parseInt(document.getElementById('hoursInput').value) || 0;
+            const minutes = parseInt(document.getElementById('minutesInput').value) || 0;
+            const seconds = parseInt(document.getElementById('secondsInput').value) || 0;
+
+            if (minutes > 59 || seconds > 59) {
+                alert('Valores inválidos! Os minutos e segundos devem ser menores que 60.');
+                return false;
+            }
+
+            return {
+                hours,
+                minutes,
+                seconds
+            };
+        }
+
         function startTimer() {
+            const time = validateTimeInputs();
+            if (!time) return;
+
+            const totalSeconds = time.hours * 3600 + time.minutes * 60 + time.seconds;
+            
+            if (totalSeconds <= 0) {
+                alert('Por favor, insira um tempo válido maior que 0 segundos!');
+                return;
+            }
+
             if (!isRunning) {
                 isRunning = true;
-                timeLeft = 3600; // 1 hour in seconds
+                timeLeft = totalSeconds;
                 timer = setInterval(updateTimer, 1000);
+                updateTimer();
             }
         }
 
@@ -97,8 +144,11 @@
 
         function resetTimer() {
             stopTimer();
-            timeLeft = 3600;
+            timeLeft = 0;
             document.getElementById('timer').textContent = '00:00:00';
+            document.getElementById('hoursInput').value = '';
+            document.getElementById('minutesInput').value = '';
+            document.getElementById('secondsInput').value = '';
         }
 
         function updateTimer() {
